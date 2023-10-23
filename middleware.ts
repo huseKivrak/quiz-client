@@ -6,7 +6,7 @@ import jwtDecode from 'jwt-decode';
  * Middleware function for authenticated API calls
  * @param authContext - user's current auth context
  */
-export const authMiddleware = (authContext: AuthContextProps) => {
+export default function authMiddleware(authContext: AuthContextProps) {
   return (next: (options: RequestInit) => Promise<Response>) => {
     return async (options: RequestInit) => {
       const { user, setUser } = authContext;
@@ -41,4 +41,4 @@ export const authMiddleware = (authContext: AuthContextProps) => {
       });
     };
   };
-};
+}
