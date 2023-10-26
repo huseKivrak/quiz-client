@@ -1,23 +1,31 @@
 'use client';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect, useContext } from 'react';
-import { getUser } from '@/utils/authUtils';
+import { getAndSetUser } from '@/utils/authUtils';
 import { AuthContext } from '@/context/AuthContext';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { setUser } = useContext(AuthContext);
+
+  const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const fetchedUser = await getUser({ setUser });
-      if (fetchedUser !== null) {
-        router.push('/dashboard');
-      } else {
-        router.push('/login');
-      }
-    };
-    fetchUser();
+    if (!user) {
+      const fetchUser = async () => {
+        try {
+          const fetchedUser = await getAndSetUser({ setUser });
+          if (fetchedUser !== null) {
+            router.push('/dashboard');
+          } else {
+            router.push('/login');
+          }
+        } catch (error) {
+          console.log(error);
+          router.push('/login');
+        }
+      };
+      fetchUser();
+    }
   }, [setUser, router]);
 
   return (
