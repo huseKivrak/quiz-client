@@ -8,33 +8,6 @@ import { AuthContextProps } from '@/context/AuthContext';
 import { User } from '@/types/user';
 
 /**
- * Refreshes the access token and updates the user context
- * @param authContext - User's current authentication context
- * @returns A promise that resolves with the new access token
- */
-export async function refreshToken(
-  authContext: AuthContextProps
-): Promise<string> {
-  const response = await fetch(AUTH_TOKEN_REFRESH_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    setUserFromData(data, authContext.setUser);
-    return data.access;
-  } else {
-    console.error('Failed to refresh token');
-    authContext.setUser(null);
-    throw new Error('Failed to refresh token');
-  }
-}
-
-/**
  * Utility function to make authenticated API calls
  * If the token is expired, this function will attempt to refresh it.
  *
@@ -43,30 +16,39 @@ export async function refreshToken(
  * @param authContext - User's current authentication context
  * @returns A promise that resolves with the fetch Response
  */
-export async function authFetch(
+export const authFetch = async (
   url: string,
-  options: RequestInit,
-  authContext: AuthContextProps
-): Promise<Response> {
-  const { user } = authContext;
-  const token = user?.token;
+  options: RequestInit = {}
+): Promise<Response> => {
+  let res = await fetch(url, {
+    ...options,
+    credentials: 'include',
+  });
+  if (res.status === 401) {
+    const refreshResponse = await fetch(AUTH_TOKEN_REFRESH_URL, {
+      method: 'POST',
+      credentials: 'include',
+    });
 
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-    Authorization: token ? `Bearer ${token}` : '',
-  } as Record<string, string>;
-
-  let response = await fetch(url, { ...options, headers });
-
-  if (response.status === 401) {
-    const newToken = await refreshToken(authContext);
-    headers.Authorization = `Bearer ${newToken}`;
-    response = await fetch(url, { ...options, headers });
+    if (refreshResponse.ok) {
+      res = await fetch(url, {
+        ...options,
+        credentials: 'include',
+      });
+    } else {
+      console.error('refresh failed');
+      throw new Error('Unauthorized');
+    }
   }
 
-  return response;
-}
+  if (res.ok) {
+    return res.json();
+  } else {
+    const data = await res.json();
+    console.error(data);
+    throw new Error(data);
+  }
+};
 
 /**
  * Helper function to update the user object from API response data
@@ -75,9 +57,10 @@ export async function authFetch(
  * @param setUser - The function to update the user in context
  */
 const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
-  const { pk, first_name, last_name, email, access } = data;
+  const { pk, username, first_name, last_name, email, access } = data.user;
   setUser({
     id: pk,
+    username,
     firstName: first_name,
     lastName: last_name,
     email,
@@ -91,50 +74,31 @@ const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
  * @param authContext - User's current authentication context
  */
 export async function getAndSetUser(authContext: AuthContextProps) {
-  const response = await authFetch(
-    AUTH_USER_URL,
-    { method: 'GET' },
-    authContext
-  );
-
-  if (response.ok) {
-    const data = await response.json();
+  try {
+    const data = await authFetch(AUTH_USER_URL, { method: 'GET' });
     setUserFromData(data, authContext.setUser);
-    return data;
-  } else {
+  } catch (error) {
     authContext.setUser(null);
     return null;
   }
 }
 
-/**
- * Performs login and sets the user in context
- *
- * @param authContext - User's current authentication context
- * @param username - Username for login
- * @param password - Password for login
- */
 export async function doLogin(
   authContext: AuthContextProps,
   username: string,
   password: string
 ) {
-  const response = await authFetch(
-    AUTH_LOGIN_URL,
-    {
+  try {
+    const data = await authFetch(AUTH_LOGIN_URL, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
-    },
-    authContext
-  );
-
-  const data = await response.json();
-  if (response.ok) {
-    console.log('Login successful, Setting User:', data.user);
-    setUserFromData(data.user, authContext.setUser);
-  } else {
-    console.error('Login failed:', data.detail);
-    throw new Error(data.detail);
+    });
+    console.log('Login successful, Setting User:', data);
+    setUserFromData(data, authContext.setUser);
+  } catch (error: any) {
+    console.error('Login failed:', error);
+    throw new Error(error);
   }
 }
 
@@ -144,15 +108,10 @@ export async function doLogin(
  * @param authContext - User's current authentication context
  */
 export async function doLogout(authContext: AuthContextProps) {
-  const response = await fetch(AUTH_LOGOUT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (response.ok) {
+  try {
+    await authFetch(AUTH_LOGOUT_URL, { method: 'POST' });
     authContext.setUser(null);
-  } else {
-    const data = await response.json();
-    throw new Error(data.detail);
+  } catch (error: any) {
+    throw new Error(error);
   }
 }

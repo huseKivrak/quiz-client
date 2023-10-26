@@ -1,27 +1,25 @@
 'use client';
-
-import { AuthContext } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { getAndSetUser } from '@/utils/authUtils';
 
 const DashboardPage = () => {
-  const { user } = useContext(AuthContext);
-  const router = useRouter();
+  const authContext = useAuth();
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
+    if (!authContext.user) {
+      getAndSetUser(authContext);
     }
-  }, [user, router]);
+  }, []);
 
-  if (!user){
-    return <div>Loading...</div>
+  if (!authContext.user) {
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <p>Welcome {user.firstName}</p>
+      <p>Welcome {authContext.user.username}</p>
     </div>
   );
 };

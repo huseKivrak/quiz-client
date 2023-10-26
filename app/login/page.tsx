@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useContext } from 'react';
-import { AuthContext, AuthContextProps } from '@/context/AuthContext';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { doLogin } from '@/utils/authUtils';
 import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const { setUser } = useContext<AuthContextProps>(AuthContext);
+  const { setUser } = useAuth();
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
