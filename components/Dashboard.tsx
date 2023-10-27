@@ -1,29 +1,54 @@
 import { useAuth } from '@/context/AuthContext';
-
+import { useEffect, useState } from 'react';
+import { authFetch } from '@/utils/authUtils';
+import { API_QUIZZES_URL } from '@/lib/apiConstants';
+import { Quiz } from '@/types/quiz';
 const Dashboard = () => {
   const { user } = useAuth();
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const data: Quiz[] = await authFetch(API_QUIZZES_URL);
+        setQuizzes(data);
+      } catch (error) {
+        console.error('error fetching quizzes:', error);
+      }
+    };
+    if (user) {
+      fetchQuizzes();
+    }
+  }, [user]);
 
   if (!user) {
     return <div>Loading...</div>;
   }
   return (
-    <div className='card bordered w-1/4 mx-auto mt-10 bg-primary'>
-      <div className='card-body'>
-        <h2 className='card-title font-light'>Dashboard</h2>
+    <div className='bg-primary min-h-screen p-6'>
+      <h1 className='text-4xl mb-4'>Quiz Dashboard</h1>
 
-          <label className='label'>
-            <span className='label-text'>Username</span>
-          </label>
-          <div className='input input-bordered'>{user.username}</div>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='bg-white p-6 rounded-lg shadow-md'>
+          <h2 className='text-2xl mb-4'>{`${user.firstName} ${user.lastName}`}</h2>
+          <p className='italic'>({user.username})</p>
         </div>
-        <div className='form-control'>
-          <label className='label'>
-            <span className='label-text'>Email</span>
-          </label>
-          <div className='input input-bordered'>{user.email}</div>
+
+        <div className='bg-white p-6 rounded-lg shadow-md'>
+          <h2 className='text-2xl mb-4'>My Quizzes</h2>
+          {quizzes ? (
+            <ul>
+              {quizzes.map((quiz) => (
+                <li key={quiz.slug}>{quiz.title}</li>
+              ))}
+            </ul>
+          ) : (
+            'Loading quizzes..'
+          )}
         </div>
       </div>
-
+    </div>
   );
 };
+
 export default Dashboard;
