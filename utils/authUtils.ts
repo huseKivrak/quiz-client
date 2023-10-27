@@ -15,10 +15,10 @@ import { User } from '@/types/user';
  * @param options - Fetch options
  * @param authContext - User's current authentication context
  */
-export const authFetch = async (
+export const authFetch = async <T>(
   url: string,
   options: RequestInit = {}
-): Promise<Response> => {
+): Promise<T> => {
   let res = await fetch(url, {
     ...options,
     credentials: 'include',
