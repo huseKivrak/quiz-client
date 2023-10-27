@@ -18,4 +18,16 @@ export const AUTH_REGISTRATION_RESEND_EMAIL_URL: string = `${AUTH_BASE_URL}regis
 /**
  * Base URLs for DRF API endpoints
  */
-export const API_BASE_URL: string = 'http://localhost:8000/api/';
+export const API_BASE_URL: string = 'http://localhost:8000/api/v1/';
+
+// Quiz URLs
+export const API_QUIZZES_URL: string = `${API_BASE_URL}quizzes/`;
+export const API_QUIZ_DETAIL_URL: string = `${API_BASE_URL}quizzes/<slug:slug>/`;
+
+// Question URLs
+export const API_QUESTIONS_URL: string = `${API_BASE_URL}questions/`;
+export const API_QUESTION_DETAIL_URL: string = `${API_BASE_URL}questions/<slug:slug>/`;
+
+// Answer URLs
+export const API_ANSWERS_URL: string = `${API_BASE_URL}answers/`;
+export const API_ANSWER_DETAIL_URL: string = `${API_BASE_URL}answers/<slug:slug>/`;
