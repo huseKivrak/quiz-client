@@ -14,7 +14,6 @@ import { User } from '@/types/user';
  * @param url - API endpoint
  * @param options - Fetch options
  * @param authContext - User's current authentication context
- * @returns A promise that resolves with the fetch Response
  */
 export const authFetch = async (
   url: string,
@@ -57,14 +56,13 @@ export const authFetch = async (
  * @param setUser - The function to update the user in context
  */
 const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
-  const { pk, username, first_name, last_name, email, access } = data.user;
+  const { pk, username, first_name, last_name, email } = data;
   setUser({
     id: pk,
     username,
     firstName: first_name,
     lastName: last_name,
     email,
-    token: access,
   });
 };
 
@@ -74,12 +72,17 @@ const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
  * @param authContext - User's current authentication context
  */
 export async function getAndSetUser(authContext: AuthContextProps) {
+  authContext.setIsLoading(true);
   try {
-    const data = await authFetch(AUTH_USER_URL, { method: 'GET' });
-    setUserFromData(data, authContext.setUser);
+    const data = await authFetch(AUTH_USER_URL);
+    console.log('Fetched data:', data);
+    await setUserFromData(data, authContext.setUser);
+    console.log('after setting, user is:', authContext.user);
   } catch (error) {
     authContext.setUser(null);
     return null;
+  } finally {
+    authContext.setIsLoading(false);
   }
 }
 
@@ -88,6 +91,7 @@ export async function doLogin(
   username: string,
   password: string
 ) {
+  authContext.setIsLoading(true);
   try {
     const data = await authFetch(AUTH_LOGIN_URL, {
       method: 'POST',
@@ -99,6 +103,8 @@ export async function doLogin(
   } catch (error: any) {
     console.error('Login failed:', error);
     throw new Error(error);
+  } finally {
+    authContext.setIsLoading(false);
   }
 }
 
@@ -108,10 +114,13 @@ export async function doLogin(
  * @param authContext - User's current authentication context
  */
 export async function doLogout(authContext: AuthContextProps) {
+  authContext.setIsLoading(true);
   try {
     await authFetch(AUTH_LOGOUT_URL, { method: 'POST' });
     authContext.setUser(null);
   } catch (error: any) {
     throw new Error(error);
+  } finally {
+    authContext.setIsLoading(false);
   }
 }

@@ -1,13 +1,20 @@
 'use client';
 
-import { createContext, useState, useContext, Dispatch } from 'react';
+import {
+  createContext,
+  useState,
+  useContext,
+  Dispatch,
+  useEffect,
+} from 'react';
 import { User } from '@/types/user';
+import { getAndSetUser } from '@/utils/authUtils';
 
 export type AuthContextProps = {
   user?: User | null;
   setUser: Dispatch<React.SetStateAction<User | null>>;
-  // isLoading: boolean;
-  // setIsLoading: Dispatch<SetStateAction<boolean>>;
+  isLoading: boolean;
+  setIsLoading: Dispatch<React.SetStateAction<boolean>>;
   // error?: Error | null;
   // setError: Dispatch<SetStateAction<Error | null>>;
 };
@@ -26,11 +33,27 @@ export const useAuth = (): AuthContextProps => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  // const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   // const [error, setError] = useState<Error | null>(null);
+  console.log('current user:', user);
+  console.log('current loading state:', isLoading);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        await getAndSetUser({ user, setUser, isLoading, setIsLoading });
+        console.log("After fetch, user is: ", user);
+      } catch (error) {
+        console.error('failed to fetch user:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
       {children}
     </AuthContext.Provider>
   );
