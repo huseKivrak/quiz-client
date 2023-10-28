@@ -6,6 +6,8 @@ export interface Quiz {
   slug: string;
   title: string;
   uuid: string;
+  created: string;
+  modified: string;
 }
 
 export interface Question {
@@ -17,12 +19,16 @@ export interface Question {
   slug: string;
   text: string;
   uuid: string;
+  created: string;
+  modified: string;
 }
 
-export interface Answer{
-  is_correct: boolean
-  order: number
-  question: number
-  text: string
-  uuid: string
+export interface Answer {
+  is_correct: boolean;
+  order: number;
+  question: number;
+  text: string;
+  uuid: string;
+  created: string;
+  modified: string;
 }
