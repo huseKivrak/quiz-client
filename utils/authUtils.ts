@@ -55,8 +55,11 @@ export const authFetch = async <T>(
  * @param data - The data from the API response
  * @param setUser - The function to update the user in context
  */
-const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
-  const { pk, username, first_name, last_name, email } = data;
+const setUserFromData = (
+  userData: any,
+  setUser: (user: User | null) => void
+) => {
+  const { pk, username, first_name, last_name, email } = userData;
   setUser({
     id: pk,
     username,
@@ -72,17 +75,14 @@ const setUserFromData = (data: any, setUser: (user: User | null) => void) => {
  * @param authContext - User's current authentication context
  */
 export async function getAndSetUser(authContext: AuthContextProps) {
-  authContext.setIsLoading(true);
   try {
-    const data = await authFetch(AUTH_USER_URL);
-    console.log('Fetched data:', data);
-    await setUserFromData(data, authContext.setUser);
-    console.log('after setting, user is:', authContext.user);
+    const authUser = await authFetch(AUTH_USER_URL);
+    console.log('Fetched data:', authUser);
+    setUserFromData(authUser, authContext.setUser);
+    authContext.setIsLoading(false);
   } catch (error) {
     authContext.setUser(null);
     return null;
-  } finally {
-    authContext.setIsLoading(false);
   }
 }
 
@@ -93,18 +93,18 @@ export async function doLogin(
 ) {
   authContext.setIsLoading(true);
   try {
-    const data = await authFetch(AUTH_LOGIN_URL, {
+    const data: any = await authFetch(AUTH_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
     console.log('Login successful, Setting User:', data);
-    setUserFromData(data, authContext.setUser);
+    const userData: User = data.user;
+    setUserFromData(userData, authContext.setUser);
+    authContext.setIsLoading(false);
   } catch (error: any) {
     console.error('Login failed:', error);
-    throw new Error(error);
-  } finally {
-    authContext.setIsLoading(false);
+    throw new Error('Incorrect username/password');
   }
 }
 
@@ -118,9 +118,8 @@ export async function doLogout(authContext: AuthContextProps) {
   try {
     await authFetch(AUTH_LOGOUT_URL, { method: 'POST' });
     authContext.setUser(null);
+    authContext.setIsLoading(false);
   } catch (error: any) {
     throw new Error(error);
-  } finally {
-    authContext.setIsLoading(false);
   }
 }
