@@ -1,11 +1,18 @@
+'use client';
+
 import { NavLink } from '@/types/nav';
 import Link from 'next/link';
-
+import { useAuth } from '@/context/AuthContext';
+import { AUTHENTICATED_LINKS, GUEST_LINKS } from '@/lib/constants';
 interface NavBarProps {
   navLinks: NavLink[];
 }
 
-function NavBar({ navLinks }: NavBarProps) {
+export default function NavBar() {
+  const {user, isLoading} = useAuth();
+
+  const shownLinks = user ? AUTHENTICATED_LINKS : GUEST_LINKS;
+
   return (
     <div className='navbar bg-secondary'>
       <div className='navbar-start flex items-center'>
@@ -16,7 +23,7 @@ function NavBar({ navLinks }: NavBarProps) {
       </div>
       <div className='navbar-center hidden lg:flex'>
         <ul className='menu menu-horizontal'>
-          {navLinks.map((link) => (
+          {shownLinks.map((link) => (
             <li key={link.href} className='px-10'>
               <Link href={link.href}>
                 <span>{link.name}</span>
@@ -47,7 +54,7 @@ function NavBar({ navLinks }: NavBarProps) {
             tabIndex={0}
             className='menu menu-md dropdown-content p-0 mt-3 z-[1] shadow bg-base-100 w-52 right-0'
           >
-            {navLinks.map((link) => (
+            {shownLinks.map((link) => (
               <li className='text-center' key={link.href}>
                 <Link href={link.href}>
                   <span>{link.name}</span>
@@ -61,4 +68,3 @@ function NavBar({ navLinks }: NavBarProps) {
   );
 }
 
-export default NavBar;
