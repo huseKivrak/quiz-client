@@ -3,13 +3,31 @@
 import { NavLink } from '@/types/nav';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { AUTHENTICATED_LINKS, GUEST_LINKS } from '@/lib/constants';
-interface NavBarProps {
-  navLinks: NavLink[];
-}
+
+export const AUTHENTICATED_LINKS: readonly NavLink[] = [
+  {
+    name: 'dashboard',
+    href: '/dashboard',
+  },
+  {
+    name: 'quizzes',
+    href: '/quizzes',
+  },
+];
+
+export const GUEST_LINKS: readonly NavLink[] = [
+  {
+    name: 'login',
+    href: '/login',
+  },
+  {
+    name: 'signup',
+    href: '/signup',
+  },
+];
 
 export default function NavBar() {
-  const {user, isLoading} = useAuth();
+  const { user } = useAuth();
 
   const shownLinks = user ? AUTHENTICATED_LINKS : GUEST_LINKS;
 
@@ -67,4 +85,3 @@ export default function NavBar() {
     </div>
   );
 }
-
