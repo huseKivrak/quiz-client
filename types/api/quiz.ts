@@ -1,6 +1,6 @@
 export interface Quiz {
   author: number;
-  description: string;
+  description?: string;
   isPublished: boolean;
   questions: Question[];
   slug: string;
