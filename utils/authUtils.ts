@@ -4,8 +4,9 @@ import {
   AUTH_TOKEN_REFRESH_URL,
   AUTH_USER_URL,
 } from '@/lib/apiConstants';
-import { AuthContextProps } from '@/context/AuthContext';
-import { User } from '@/types/user';
+import { AuthContextProps } from '@/contexts/AuthContext';
+import { User } from '@/types/api/user';
+import camelCaseMapper, { DataType } from './variableMappers';
 
 /**
  * Utility function to make authenticated API calls
@@ -49,6 +50,7 @@ export const authFetch = async <T>(
   }
 };
 
+//todo: update after translating mapper utility func
 /**
  * Helper function to update the user object from API response data
  *
@@ -56,15 +58,17 @@ export const authFetch = async <T>(
  * @param setUser - The function to update the user in context
  */
 const setUserFromData = (
-  userData: any,
+  userData: DataType,
   setUser: (user: User | null) => void
 ) => {
-  const { pk, username, first_name, last_name, email } = userData;
+  const transformedData = camelCaseMapper(userData) as DataType;
+  const { id, username, firstName, lastName, email } =
+    transformedData as unknown as User;
   setUser({
-    id: pk,
+    id,
     username,
-    firstName: first_name,
-    lastName: last_name,
+    firstName,
+    lastName,
     email,
   });
 };
@@ -76,7 +80,7 @@ const setUserFromData = (
  */
 export async function getAndSetUser(authContext: AuthContextProps) {
   try {
-    const authUser = await authFetch(AUTH_USER_URL);
+    const authUser = await authFetch<DataType>(AUTH_USER_URL);
     console.log('Fetched data:', authUser);
     setUserFromData(authUser, authContext.setUser);
     authContext.setIsLoading(false);
@@ -93,16 +97,18 @@ export async function doLogin(
 ) {
   authContext.setIsLoading(true);
   try {
-    const data: any = await authFetch(AUTH_LOGIN_URL, {
+    const data = await authFetch<DataType>(AUTH_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
-    console.log('Login successful, Setting User:', data);
-    const userData: User = data.user;
+
+    const userData = data.user as unknown as DataType;
+    console.log('Login successful, Setting User:', userData);
+
     setUserFromData(userData, authContext.setUser);
     authContext.setIsLoading(false);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login failed:', error);
     throw new Error('Incorrect username/password');
   }
@@ -119,7 +125,13 @@ export async function doLogout(authContext: AuthContextProps) {
     await authFetch(AUTH_LOGOUT_URL, { method: 'POST' });
     authContext.setUser(null);
     authContext.setIsLoading(false);
-  } catch (error: any) {
-    throw new Error(error);
+
+
+  } catch (error: unknown) {
+    if (typeof error === 'string') {
+      throw new Error(error);
+    } else {
+      throw 'Something went wrong.';
+    }
   }
 }
