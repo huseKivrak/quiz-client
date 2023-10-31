@@ -7,11 +7,11 @@ import {
   Dispatch,
   useEffect,
 } from 'react';
-import { User } from '@/types/user';
+import { User } from '@/types/api/user';
 import { getAndSetUser } from '@/utils/authUtils';
 
 export type AuthContextProps = {
-  user?: User | null;
+  user: User | null;
   setUser: Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<React.SetStateAction<boolean>>;
