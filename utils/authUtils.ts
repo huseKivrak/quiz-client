@@ -3,6 +3,7 @@ import {
   AUTH_LOGOUT_URL,
   AUTH_TOKEN_REFRESH_URL,
   AUTH_USER_URL,
+  AUTH_REGISTRATION_URL,
 } from '@/lib/apiConstants';
 import { AuthContextProps } from '@/contexts/AuthContext';
 import { User } from '@/types/api/user';
@@ -50,7 +51,6 @@ export const authFetch = async <T>(
   }
 };
 
-//todo: update after translating mapper utility func
 /**
  * Helper function to update the user object from API response data
  *
@@ -125,13 +125,61 @@ export async function doLogout(authContext: AuthContextProps) {
     await authFetch(AUTH_LOGOUT_URL, { method: 'POST' });
     authContext.setUser(null);
     authContext.setIsLoading(false);
-
-
   } catch (error: unknown) {
     if (typeof error === 'string') {
       throw new Error(error);
     } else {
       throw 'Something went wrong.';
+    }
+  }
+}
+
+/**
+ * Registers a new user
+ *
+ * @param authContext - User's current authentication context
+ * @param username - The username for the new user
+ * @param password1 - The password for the new user
+ * @param password2 - The confirmed password for the new user
+ */
+export async function doSignup(
+  authContext: AuthContextProps,
+  username: string,
+  password1: string,
+  password2: string,
+  firstName: string,
+  email: string,
+  lastName?: string
+) {
+  authContext.setIsLoading(true);
+  try {
+    const payload: DataType = {
+      username,
+      password1,
+      password2,
+      email,
+      first_name: firstName,
+    };
+    if (lastName) {
+      payload['last_name'] = lastName;
+    }
+    const data = await authFetch<DataType>(AUTH_REGISTRATION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const userData = data.user as unknown as DataType;
+    console.log('Signup successful, Setting User:', userData);
+
+    setUserFromData(userData, authContext.setUser);
+    authContext.setIsLoading(false);
+  } catch (error: unknown) {
+    console.error('Signup failed:', error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error('Signup failed.');
     }
   }
 }
