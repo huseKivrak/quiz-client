@@ -1,39 +1,52 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { doLogin } from '@/utils/authUtils';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+const schema = z.object({
+  username: z
+    .string({
+      required_error: 'username is required',
+    })
+    .min(3, 'username must be at least 3 characters'),
+  password: z.string({
+    required_error: 'password is required',
+  }),
+});
+
+type FormData = z.infer<typeof schema>;
+
+export default function LoginPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
   const [alert, setAlert] = useState<string | null>(null);
   const authContext = useAuth();
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name === 'username') {
-      setUsername(value);
-    } else {
-      setPassword(value);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  async function onSubmit(data: FormData) {
     setAlert(null);
-
     try {
-      await doLogin(authContext, username, password);
+      await doLogin(authContext, data.username, data.password);
       console.log('successful login, redirecting to dashboard...');
-    //   router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log('failed login', error);
-      setAlert(error.message);
+      if (error instanceof Error) {
+        setAlert(error.message);
+      }
     }
-  };
+  }
 
   useEffect(() => {
     if (authContext.user) {
@@ -45,20 +58,18 @@ const LoginPage: React.FC = () => {
     <div className='card bordered w-1/4 mx-auto mt-10 bg-primary'>
       <div className='card-body'>
         <h2 className='card-title font-light'>login</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label className='label'>
               <span className='label-text'>username</span>
             </label>
             <input
               type='text'
-              name='username'
+              {...register('username')}
               className='input input-bordered'
-              value={username}
               placeholder='artemis123'
-              onChange={handleChange}
-              required
             />
+            {errors.username && <div>{errors.username.message}</div>}
           </div>
           <div className='form-control'>
             <label className='label'>
@@ -66,13 +77,11 @@ const LoginPage: React.FC = () => {
             </label>
             <input
               type='password'
-              name='password'
+              {...register('password')}
               className='input input-bordered'
-              value={password}
-              onChange={handleChange}
               placeholder='********'
-              required
             />
+            {errors.password && <div>{errors.password.message}</div>}
           </div>
           {alert && <div>{alert}</div>}
           <button type='submit' className='btn btn-sm btn-secondary mt-4'>
@@ -80,8 +89,12 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
       </div>
+      <div className='card-footer bg-secondary text-center'>
+        <span className='text-white'>Don't have an account? </span>
+        <Link href='/signup' className='text-blue-400 hover:underline'>
+          Sign up
+        </Link>
+      </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
