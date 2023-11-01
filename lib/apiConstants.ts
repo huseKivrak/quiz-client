@@ -20,7 +20,7 @@ export const AUTH_PASSWORD_RESET_CONFIRM_URL: URL = `${AUTH_BASE_URL}password/re
 export const AUTH_USER_URL: URL = `${AUTH_BASE_URL}user/`;
 export const AUTH_TOKEN_VERIFY_URL: URL = `${AUTH_BASE_URL}token/verify/`;
 export const AUTH_TOKEN_REFRESH_URL: URL = `${AUTH_BASE_URL}token/refresh/`;
-export const AUTH_REGISTRATION_URL: URL = `${AUTH_BASE_URL}registration/`;
+export const AUTH_REGISTRATION_URL: URL = `${AUTH_BASE_URL}signup/`;
 export const AUTH_REGISTRATION_VERIFY_EMAIL_URL: URL = `${AUTH_BASE_URL}registration/verify-email/`;
 export const AUTH_REGISTRATION_RESEND_EMAIL_URL: URL = `${AUTH_BASE_URL}registration/resend-email/`;
 
