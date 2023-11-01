@@ -1,9 +1,9 @@
 'use client';
-import { Quiz } from '@/types/quiz';
+import {  Quiz } from '@/types/api/quiz';
 import { useEffect, useState } from 'react';
 import { getQuizDetailURL } from '@/lib/apiConstants';
 import { authFetch } from '@/utils/authUtils';
-
+import QuizCard from '@/components/QuizCard';
 export default function QuizPage({ params }: { params: { slug: string } }) {
   const [quiz, setQuiz] = useState<Quiz>();
 
@@ -20,9 +20,13 @@ export default function QuizPage({ params }: { params: { slug: string } }) {
     fetchQuiz();
   }, []);
 
+  if (!quiz) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
-      <h1>{quiz?.title}</h1>
+      <QuizCard quiz={quiz} />
     </div>
   );
 }
