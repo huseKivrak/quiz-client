@@ -15,7 +15,7 @@ export default function LandingPage() {
   }, [user]);
 
   return (
-    <div>
+    <div className='justify-center'>
       <h1>welcome to quiz</h1>
       <h2>Sint ullamco in cillum labore.</h2>
       <p>
