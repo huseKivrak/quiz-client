@@ -1,10 +1,12 @@
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { authFetch } from '@/utils/authUtils';
 import { API_QUIZZES_URL } from '@/lib/apiConstants';
-import { Quiz } from '@/types/quiz';
+import { Quiz } from '@/types/api/quiz';
+import Link from 'next/link';
+
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
 
   useEffect(() => {
@@ -16,14 +18,17 @@ const Dashboard = () => {
         console.error('error fetching quizzes:', error);
       }
     };
-    if (user) {
+    if (user && !isLoading) {
       fetchQuizzes();
     }
-  }, [user]);
+  }, [user, isLoading]);
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+if (!user){
+  return (
+    <div>Loading..!</div>
+  )
+}
+
   return (
     <div className='bg-primary min-h-screen p-6'>
       <h1 className='text-4xl mb-4'>Quiz Dashboard</h1>
@@ -39,7 +44,9 @@ const Dashboard = () => {
           {quizzes ? (
             <ul>
               {quizzes.map((quiz) => (
-                <li key={quiz.slug}>{quiz.title}</li>
+                <li key={quiz.slug}>
+                  <Link href={`/quizzes/${quiz.slug}`}>{quiz.title}</Link>
+                </li>
               ))}
             </ul>
           ) : (

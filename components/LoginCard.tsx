@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { doLogin } from '@/utils/authUtils';
 
-const LoginCard: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const authContext = useAuth();
@@ -67,4 +67,4 @@ const LoginCard: React.FC = () => {
   );
 };
 
-export default LoginCard;
+export default LoginPage;
