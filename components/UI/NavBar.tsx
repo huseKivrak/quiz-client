@@ -2,7 +2,8 @@
 
 import { NavLink } from '@/types/nav';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
+import LogoutButton from '@/components/LogoutButton';
 
 export const AUTHENTICATED_LINKS: readonly NavLink[] = [
   {
@@ -27,14 +28,14 @@ export const GUEST_LINKS: readonly NavLink[] = [
 ];
 
 export default function NavBar() {
-  const { user } = useAuth();
+  const authContext = useAuth();
 
-  const shownLinks = user ? AUTHENTICATED_LINKS : GUEST_LINKS;
+  const shownLinks = authContext.user ? AUTHENTICATED_LINKS : GUEST_LINKS;
 
   return (
     <div className='navbar bg-secondary'>
       <div className='navbar-start flex items-center'>
-        <Link href='/' className='btn btn-ghost rounded-none'>
+        <Link href='/' className='btn btn-ghost'>
           quiz
         </Link>
         <div className='divider divider-horizontal mx-2' />
@@ -82,6 +83,12 @@ export default function NavBar() {
           </ul>
         </div>
       </div>
+      {authContext.user && (
+        <>
+          <div className='divider divider-horizontal mx-2' />
+          <LogoutButton authContext={authContext} />
+        </>
+      )}
     </div>
   );
 }
