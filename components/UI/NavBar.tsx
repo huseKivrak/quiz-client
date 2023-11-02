@@ -14,6 +14,10 @@ export const AUTHENTICATED_LINKS: readonly NavLink[] = [
     name: 'quizzes',
     href: '/quizzes',
   },
+  {
+    name:'create',
+    href:'/quizzes/create'
+  }
 ];
 
 export const GUEST_LINKS: readonly NavLink[] = [
