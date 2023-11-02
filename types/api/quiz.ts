@@ -1,4 +1,5 @@
 export interface Quiz {
+  id: number;
   author: number;
   description?: string;
   isPublished: boolean;
@@ -11,11 +12,12 @@ export interface Quiz {
 }
 
 export interface Question {
+  id: number;
   answers: Answer[];
-  author: number;
   order: number;
   questionType: string;
   quiz: number;
+  author: number;
   slug: string;
   text: string;
   uuid: string;
@@ -24,6 +26,7 @@ export interface Question {
 }
 
 export interface Answer {
+  id: number;
   isCorrect: boolean;
   order: number;
   question: number;
