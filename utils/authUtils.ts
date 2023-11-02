@@ -7,7 +7,7 @@ import {
 } from '@/lib/apiConstants';
 import { AuthContextProps } from '@/contexts/AuthContext';
 import { User } from '@/types/api/user';
-import camelCaseMapper, { DataType } from './variableMappers';
+import { deepTransformKeys, DataObject } from './variableMappers';
 
 /**
  * Utility function to make authenticated API calls
@@ -58,10 +58,10 @@ export const authFetch = async <T>(
  * @param setUser - The function to update the user in context
  */
 const setUserFromData = (
-  userData: DataType,
+  userData: DataObject,
   setUser: (user: User | null) => void
 ) => {
-  const transformedData = camelCaseMapper(userData) as DataType;
+  const transformedData = deepTransformKeys(userData, 'camel') as DataObject;
   const { id, username, firstName, lastName, email } =
     transformedData as unknown as User;
   setUser({
@@ -80,7 +80,7 @@ const setUserFromData = (
  */
 export async function getAndSetUser(authContext: AuthContextProps) {
   try {
-    const authUser = await authFetch<DataType>(AUTH_USER_URL);
+    const authUser = await authFetch<DataObject>(AUTH_USER_URL);
     console.log('Fetched data:', authUser);
     setUserFromData(authUser, authContext.setUser);
     authContext.setIsLoading(false);
@@ -97,13 +97,13 @@ export async function doLogin(
 ) {
   authContext.setIsLoading(true);
   try {
-    const data = await authFetch<DataType>(AUTH_LOGIN_URL, {
+    const data = await authFetch<DataObject>(AUTH_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
 
-    const userData = data.user as unknown as DataType;
+    const userData = data.user as unknown as DataObject;
     console.log('Login successful, Setting User:', userData);
 
     setUserFromData(userData, authContext.setUser);
@@ -153,7 +153,7 @@ export async function doSignup(
 ) {
   authContext.setIsLoading(true);
   try {
-    const payload: DataType = {
+    const payload: DataObject = {
       username,
       password1,
       password2,
@@ -163,13 +163,13 @@ export async function doSignup(
     if (lastName) {
       payload['last_name'] = lastName;
     }
-    const data = await authFetch<DataType>(AUTH_REGISTRATION_URL, {
+    const data = await authFetch<DataObject>(AUTH_REGISTRATION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
-    const userData = data.user as unknown as DataType;
+    const userData = data.user as unknown as DataObject;
     console.log('Signup successful, Setting User:', userData);
 
     setUserFromData(userData, authContext.setUser);
