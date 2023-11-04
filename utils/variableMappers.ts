@@ -77,9 +77,9 @@ function transformObjectOrArrayKeys(
 }
 
 export function deepTransformKeys(
-  input: DataObject | DataObject[] | string | number,
+  input: DataValue,
   convertedCase: "camel" | "snake" = "camel"
-): DataObject | DataObject[] | string | number {
+): DataValue {
   if (typeof input === "object")
     return transformObjectOrArrayKeys(input, convertedCase);
 
