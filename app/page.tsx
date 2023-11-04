@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -15,16 +16,27 @@ export default function LandingPage() {
   }, [user]);
 
   return (
-    <div className='justify-center'>
-      <h1>welcome to quiz</h1>
-      <h2>Sint ullamco in cillum labore.</h2>
-      <p>
-        Esse cillum pariatur ex labore do qui lorem. Pariatur ex labore, do qui
-        lorem. Do qui lorem, proident amet officia. Proident amet officia
-        incididunt elit. Officia incididunt elit, irure. Irure qui ipsum eiusmod
-        ipsum laboris. Ipsum eiusmod ipsum laboris. Ipsum, laboris incididunt
-        velit ullamco do quis.
-      </p>
+    <div
+      className='hero min-h-screen'
+      style={{
+        backgroundImage:
+          'url(https://daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.jpg)',
+      }}
+    >
+      <div className='hero-overlay bg-opacity-60'></div>
+      <div className='hero-content text-center text-neutral-content'>
+        <div className='max-w-md'>
+          <h1 className='mb-5 text-5xl font-bold'>Hello there</h1>
+          <p className='mb-5'>
+            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+            a id nisi.
+          </p>
+          <Link href='/signup'>
+          <button className='btn btn-primary'>Get Started</button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
