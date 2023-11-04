@@ -1,6 +1,5 @@
-export type DataValue = string | number | DataObject | DataArray;
+export type DataValue = string | number | DataObject | DataObject[];
 export type DataObject = { [key: string]: DataValue };
-export type DataArray = DataObject[];
 
 type KeysRecord = Record<string, string>;
 
@@ -51,7 +50,7 @@ export function toSnakeCase(str: string): string {
  * @returns : object or array of objects with keys converted to the specified case
  */
 function transformObjectOrArrayKeys(
-  input: DataArray | DataObject,
+  input: DataObject[] | DataObject,
   convertedCase: "camel" | "snake" = "camel"
 ): DataValue {
   if (Array.isArray(input)) {
@@ -78,9 +77,9 @@ function transformObjectOrArrayKeys(
 }
 
 export function deepTransformKeys(
-  input: DataObject | DataArray | string | number,
+  input: DataObject | DataObject[] | string | number,
   convertedCase: "camel" | "snake" = "camel"
-): DataObject | DataArray | string | number {
+): DataObject | DataObject[] | string | number {
   if (typeof input === "object")
     return transformObjectOrArrayKeys(input, convertedCase);
 
