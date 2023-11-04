@@ -8,12 +8,12 @@ export type DataArray = DataObject[];
  * 'api_name': 'clientName'
  * };
  */
-const snakeToCamelSpecialCases: { [key: string]: string } = {
-  pk: 'id',
+const apiKeysRecord: { [key: string]: string } = {
+  pk: "id",
 };
 
-const camelToSnakeSpecialCases = Object.fromEntries(
-  Object.entries(snakeToCamelSpecialCases).map(([key, value]) => [value, key])
+const clientKeysRecord = Object.fromEntries(
+  Object.entries(apiKeysRecord).map(([key, value]) => [value, key])
 );
 
 const camelCaseResultsCache: Record<string, string> = {};
@@ -50,21 +50,21 @@ export function toSnakeCase(str: string): string {
  */
 function transformObjectOrArrayKeys(
   input: DataArray | DataObject,
-  convertedCase: 'camel' | 'snake' = 'camel'
+  convertedCase: "camel" | "snake" = "camel"
 ): DataValue {
   if (Array.isArray(input)) {
     return input.map(
       (item) => transformObjectOrArrayKeys(item, convertedCase) as DataObject
     );
-  } else if (typeof input === 'object' && input !== null) {
+  } else if (typeof input === "object" && input !== null) {
     const newObj: DataObject = {};
     for (const [key, val] of Object.entries(input)) {
       const newKey =
-        convertedCase === 'camel'
-          ? snakeToCamelSpecialCases[key] || toCamelCase(key)
-          : camelToSnakeSpecialCases[key] || toSnakeCase(key);
+        convertedCase === "camel"
+          ? apiKeysRecord[key] || toCamelCase(key)
+          : clientKeysRecord[key] || toSnakeCase(key);
 
-      if (typeof val === 'object') {
+      if (typeof val === "object") {
         newObj[newKey] = transformObjectOrArrayKeys(val, convertedCase);
       } else {
         newObj[newKey] = val;
@@ -77,9 +77,9 @@ function transformObjectOrArrayKeys(
 
 export function deepTransformKeys(
   input: DataObject | DataArray | string | number,
-  convertedCase: 'camel' | 'snake' = 'camel'
+  convertedCase: "camel" | "snake" = "camel"
 ): DataObject | DataArray | string | number {
-  if (typeof input === 'object')
+  if (typeof input === "object")
     return transformObjectOrArrayKeys(input, convertedCase);
 
   return input;
