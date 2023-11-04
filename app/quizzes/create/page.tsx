@@ -1,118 +1,82 @@
 'use client';
-
-import { useEffect } from 'react';
-import {
-  useForm,
-  useFieldArray,
-  Controller,
-  SubmitHandler,
-} from 'react-hook-form';
+import { useForm, useFieldArray, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import QuestionForm, {
-  QuestionSchema,
-  QuestionFormData,
-} from '@/components/QuestionForm';
-import { authFetch } from '@/utils/authUtils';
-import { API_QUIZZES_URL } from '@/lib/apiConstants';
+import { QuizSchemaType, QuizSchema } from '@/schemas/quizSchemas';
 
-const QuizSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  is_published: z.boolean().default(false),
-  questions: z
-    .array(QuestionSchema)
-    .min(1, 'Quiz must have at least one question'),
-});
+import TrueFalseQuestionForm from '@/components/quizForms/TrueFalseQuestionForm';
+import MultipleChoiceQuestionForm from '@/components/quizForms/MultipleChoiceQuestionForm';
 
-type QuizFormData = z.infer<typeof QuizSchema>;
-
-export default function CreateQuiz() {
+export default function QuizForm() {
   const {
     register,
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
-  } = useForm<QuizFormData>({
+  } = useForm<QuizSchemaType>({
     resolver: zodResolver(QuizSchema),
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'questions',
+    name: 'quizQuestions',
   });
 
-  const onSubmit: SubmitHandler<QuizFormData> = async (data) => {
-    try {
-      const response = await authFetch(API_QUIZZES_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      console.log('Quiz created:', response);
-    } catch (error) {
-      console.error('Failed to create quiz:', error);
-    }
+  const onSubmit: SubmitHandler<QuizSchemaType> = (data) => {
+    console.log(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {/* Quiz Title */}
-      <div>
-        <label>Title</label>
-        <input {...register('title')} />
-        {errors.title && <div>{errors.title.message}</div>}
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)} className='form-control'>
+      <input {...register('title')} placeholder='Quiz Title' className='input input-bordered input-primary max-w-xs'/>
+      <textarea {...register('description')} placeholder='Quiz Description' className='mt-4 textarea textarea-bordered textarea-secondary'/>
+      <label className='label'>
+        publish:
+        <input type='checkbox' {...register('isPublished')} />
+      </label>
 
-      {/* Quiz Description */}
-      <div>
-        <label>Description</label>
-        <textarea {...register('description')} />
-      </div>
-
-      {/* Quiz Published */}
-      <div>
-        <label>
-          Published
-          <input type='checkbox' {...register('is_published')} />
-        </label>
-      </div>
-
-      {/* Questions */}
       {fields.map((field, index) => (
-        <Controller
-          render={({ field: { onChange, onBlur, value, name, ref } }) => (
-            <div>
-              <QuestionForm
-                onChange={(e) => {
-                  const updatedQuestions = [...fields] as QuestionFormData[];
-                  updatedQuestions[index] = e;
-                  setValue('questions', updatedQuestions);
-                }}
-                value={value}
-              />
-              <button type='button' onClick={() => remove(index)}>
-                Delete Question
-              </button>
-            </div>
+        <>
+          {field.questionType === 'trueFalse' ? (
+            <TrueFalseQuestionForm control={control} index={index} />
+          ) : (
+            <MultipleChoiceQuestionForm control={control} index={index} />
           )}
-          name={`questions.${index}`}
-          control={control}
-        />
+          <button type='button' className='btn btn-xs btn-error' onClick={() => remove(index)}>
+            remove
+          </button>
+        </>
       ))}
+
       <button
+        className='btn btn-primary btn-sm lowercase'
         type='button'
         onClick={() =>
-          append({ text: '', questionType: 'multiple_choice', answers: [] })
+          append({
+            questionType: 'trueFalse',
+            questionText: '',
+            correctAnswer: 'true',
+          })
         }
       >
-        Add Question
+        add True/False
       </button>
 
-      <button type='submit'>Create Quiz</button>
+      <button
+        className='btn btn-primary btn-sm lowercase'
+        type='button'
+        onClick={() =>
+          append({
+            questionType: 'multipleChoice',
+            questionText: '',
+            questionAnswers: [{ answerText: '', isCorrect: false }],
+          })
+        }
+      >
+        add Multiple Choice
+      </button>
+
+      <input type='submit' className='btn btn-success lowercase btn-sm'/>
+      {errors && <p>{errors.title?.message || errors.description?.message}</p>}
     </form>
   );
 }
