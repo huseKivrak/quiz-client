@@ -25,23 +25,21 @@ function transformObjectOrArrayKeys(
     return input.map(
       (item) => transformObjectOrArrayKeys(item, convertedCase) as DataObject
     );
-  } else if (typeof input === "object" && input !== null) {
-    const newObj: DataObject = {};
-    for (const [key, val] of Object.entries(input)) {
-      const newKey =
-        convertedCase === "camel"
-          ? apiKeysRecord[key] || toCamelCase(key)
-          : clientKeysRecord[key] || toSnakeCase(key);
-
-      if (typeof val === "object") {
-        newObj[newKey] = transformObjectOrArrayKeys(val, convertedCase);
-      } else {
-        newObj[newKey] = val;
-      }
-    }
-    return newObj;
   }
-  return input;
+  const newObj: DataObject = {};
+  for (const [key, val] of Object.entries(input)) {
+    const newKey =
+      convertedCase === "camel"
+        ? apiKeysRecord[key] || toCamelCase(key)
+        : clientKeysRecord[key] || toSnakeCase(key);
+
+    if (typeof val === "object") {
+      newObj[newKey] = transformObjectOrArrayKeys(val, convertedCase);
+    } else {
+      newObj[newKey] = val;
+    }
+  }
+  return newObj;
 }
 
 /**
