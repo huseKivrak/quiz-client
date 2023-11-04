@@ -25,7 +25,7 @@ export default function MultipleChoiceQuestionForm({
         name={`quizQuestions.${index}.questionText` as const}
         render={({ field, fieldState: { error } }) => (
           <>
-            <input {...field} type='text' placeholder='Question Text' />
+            <input {...field} type='text' className='input input-bordered mt-4' placeholder='question' />
             {error && <p>{error.message}</p>}
           </>
         )}
@@ -38,7 +38,7 @@ export default function MultipleChoiceQuestionForm({
               `quizQuestions.${index}.questionAnswers.${answerIndex}.answerText` as const
             }
             render={({ field }) => (
-              <input {...field} type='text' placeholder='Answer Text' />
+              <input {...field} className='input input-bordered mt-4' type='text' placeholder='answer option' />
             )}
           />
           <Controller
@@ -49,6 +49,7 @@ export default function MultipleChoiceQuestionForm({
             render={({ field }) => (
               <input
                 type='checkbox'
+                className='checkbox checkbox-success ml-4 align-middle'
                 onChange={(e) => field.onChange(e.target.checked)}
                 onBlur={field.onBlur}
                 checked={field.value}
@@ -57,16 +58,17 @@ export default function MultipleChoiceQuestionForm({
               />
             )}
           />
-          <button type='button' onClick={() => remove(answerIndex)}>
-            Remove Answer
+          <button className='btn btn-xs btn-error ml-4 mt-2 w-fit' type='button' onClick={() => remove(answerIndex)}>
+            X
           </button>
         </div>
       ))}
       <button
+      className='btn btn-success btn-sm lowercase w-fit my-2 font-light flex'
         type='button'
         onClick={() => append({ answerText: '', isCorrect: false })}
       >
-        Add Answer
+        + option
       </button>
     </div>
   );
