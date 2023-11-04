@@ -43,6 +43,16 @@ export function toSnakeCase(str: string): string {
   return converted;
 }
 
+export function deepTransformKeys(
+  input: DataValue,
+  convertedCase: "camel" | "snake" = "camel"
+): DataValue {
+  if (typeof input === "object")
+    return transformObjectOrArrayKeys(input, convertedCase);
+
+  return input;
+}
+
 /**
  *
  * @param input : object or array of objects
@@ -73,15 +83,5 @@ function transformObjectOrArrayKeys(
     }
     return newObj;
   }
-  return input;
-}
-
-export function deepTransformKeys(
-  input: DataValue,
-  convertedCase: "camel" | "snake" = "camel"
-): DataValue {
-  if (typeof input === "object")
-    return transformObjectOrArrayKeys(input, convertedCase);
-
   return input;
 }
