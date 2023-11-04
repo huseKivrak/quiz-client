@@ -1,48 +1,6 @@
 export type DataValue = string | number | DataObject | DataObject[];
 export type DataObject = { [key: string]: DataValue };
 
-type KeysRecord = Record<string, string>;
-
-/**
- * Differently named special variables.
- * {
- * 'api_name': 'clientName'
- * };
- */
-const apiKeysRecord: KeysRecord = {
-  pk: "id",
-};
-
-const clientKeysRecord: KeysRecord = Object.fromEntries(
-  Object.entries(apiKeysRecord).map(([key, value]) => [value, key])
-);
-
-const camelCaseResultsCache: Record<string, string> = {};
-const snakeCaseResultsCache: Record<string, string> = {};
-
-export function toCamelCase(str: string): string {
-  if (camelCaseResultsCache[str]) return camelCaseResultsCache[str];
-
-  const converted = str.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
-  camelCaseResultsCache[str] = converted;
-  snakeCaseResultsCache[converted] = str;
-
-  return converted;
-}
-
-export function toSnakeCase(str: string): string {
-  if (snakeCaseResultsCache[str]) return snakeCaseResultsCache[str];
-
-  const converted = str.replace(
-    /[A-Z]/g,
-    (letter) => `_${letter.toLowerCase()}`
-  );
-  camelCaseResultsCache[converted] = str;
-  snakeCaseResultsCache[str] = converted;
-
-  return converted;
-}
-
 export function deepTransformKeys(
   input: DataValue,
   convertedCase: "camel" | "snake" = "camel"
@@ -84,4 +42,47 @@ function transformObjectOrArrayKeys(
     return newObj;
   }
   return input;
+}
+
+/**
+ * Differently named special variables.
+ * {
+ * 'api_name': 'clientName'
+ * };
+ */
+
+type KeysRecord = Record<string, string>;
+
+const apiKeysRecord: KeysRecord = {
+  pk: "id",
+};
+
+const clientKeysRecord: KeysRecord = Object.fromEntries(
+  Object.entries(apiKeysRecord).map(([key, value]) => [value, key])
+);
+
+const camelCaseResultsCache: Record<string, string> = {};
+const snakeCaseResultsCache: Record<string, string> = {};
+
+function toCamelCase(str: string): string {
+  if (camelCaseResultsCache[str]) return camelCaseResultsCache[str];
+
+  const converted = str.replace(/_([a-z])/g, (_, p1) => p1.toUpperCase());
+  camelCaseResultsCache[str] = converted;
+  snakeCaseResultsCache[converted] = str;
+
+  return converted;
+}
+
+function toSnakeCase(str: string): string {
+  if (snakeCaseResultsCache[str]) return snakeCaseResultsCache[str];
+
+  const converted = str.replace(
+    /[A-Z]/g,
+    (letter) => `_${letter.toLowerCase()}`
+  );
+  camelCaseResultsCache[converted] = str;
+  snakeCaseResultsCache[str] = converted;
+
+  return converted;
 }
