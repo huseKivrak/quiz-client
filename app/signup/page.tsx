@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { doSignup } from '@/utils/authUtils';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const schema = z
   .object({
@@ -75,7 +76,7 @@ export default function SignupPage() {
   return (
     <div className='card bordered w-1/4 mx-auto mt-10 bg-primary'>
       <div className='card-body'>
-        <h2 className='card-title font-light'>Signup</h2>
+        <h2 className='card-title font-light tracking-widest'>signup</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='form-control'>
             <label className='label'>
@@ -150,10 +151,13 @@ export default function SignupPage() {
             {errors.email && <div>{errors.email.message}</div>}
           </div>
           {alert && <div>{alert}</div>}
-          <button type='submit' className='btn btn-sm btn-secondary mt-4'>
-            Signup
+          <button type='submit' className='btn btn-sm btn-secondary text-sm lowercase  tracking-widest mt-4'>
+            submit
           </button>
         </form>
+        <Link href='/login' className='btn btn-xs lowercase'>
+          have an account? login
+        </Link>
       </div>
     </div>
   );
