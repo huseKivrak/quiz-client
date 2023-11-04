@@ -2,17 +2,19 @@ export type DataValue = string | number | DataObject | DataArray;
 export type DataObject = { [key: string]: DataValue };
 export type DataArray = DataObject[];
 
+type KeysRecord = Record<string, string>;
+
 /**
  * Differently named special variables.
  * {
  * 'api_name': 'clientName'
  * };
  */
-const apiKeysRecord: { [key: string]: string } = {
+const apiKeysRecord: KeysRecord = {
   pk: "id",
 };
 
-const clientKeysRecord = Object.fromEntries(
+const clientKeysRecord: KeysRecord = Object.fromEntries(
   Object.entries(apiKeysRecord).map(([key, value]) => [value, key])
 );
 
