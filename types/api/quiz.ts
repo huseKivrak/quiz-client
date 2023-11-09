@@ -15,7 +15,7 @@ export interface Question {
   id: number;
   answers: Answer[];
   order: number;
-  questionType: string;
+  questionType: 'multipleChoice' | 'trueFalse';
   quiz: number;
   author: number;
   slug: string;
@@ -31,6 +31,44 @@ export interface Answer {
   order: number;
   question: number;
   text: string;
+  uuid: string;
+  created: string;
+  modified: string;
+}
+
+export interface SnakeCaseAnswer {
+  id: number;
+  is_correct: boolean;
+  order: number;
+  question: number;
+  text: string;
+  uuid: string;
+  created: string;
+  modified: string;
+}
+
+export interface SnakeCaseQuestion {
+  id: number;
+  answers: SnakeCaseAnswer[];
+  order: number;
+  question_type: 'true_false' | 'multiple_choice';
+  quiz: number;
+  author: number;
+  slug: string;
+  text: string;
+  uuid: string;
+  created: string;
+  modified: string;
+}
+
+export interface SnakeCaseQuiz {
+  id: number;
+  author: number;
+  description?: string;
+  is_published: boolean;
+  questions: SnakeCaseQuestion[];
+  slug: string;
+  title: string;
   uuid: string;
   created: string;
   modified: string;
