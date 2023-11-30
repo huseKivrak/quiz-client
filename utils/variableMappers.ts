@@ -8,9 +8,7 @@ export type DataArray = DataObject[];
  * 'api_name': 'clientName'
  * };
  */
-const snakeToCamelSpecialCases: { [key: string]: string } = {
-  pk: 'id',
-};
+const snakeToCamelSpecialCases: { [key: string]: string } = {};
 
 const camelToSnakeSpecialCases = Object.fromEntries(
   Object.entries(snakeToCamelSpecialCases).map(([key, value]) => [value, key])
@@ -32,10 +30,7 @@ export function toCamelCase(str: string): string {
 export function toSnakeCase(str: string): string {
   if (snakeCaseResultsCache[str]) return snakeCaseResultsCache[str];
 
-  const converted = str.replace(
-    /[A-Z]/g,
-    (letter) => `_${letter.toLowerCase()}`
-  );
+  const converted = str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   camelCaseResultsCache[converted] = str;
   snakeCaseResultsCache[str] = converted;
 
@@ -53,9 +48,7 @@ function transformObjectOrArrayKeys(
   convertedCase: 'camel' | 'snake' = 'camel'
 ): DataValue {
   if (Array.isArray(input)) {
-    return input.map(
-      (item) => transformObjectOrArrayKeys(item, convertedCase) as DataObject
-    );
+    return input.map((item) => transformObjectOrArrayKeys(item, convertedCase) as DataObject);
   } else if (typeof input === 'object' && input !== null) {
     const newObj: DataObject = {};
     for (const [key, val] of Object.entries(input)) {
@@ -79,8 +72,7 @@ export function deepTransformKeys(
   input: DataObject | DataArray | string | number,
   convertedCase: 'camel' | 'snake' = 'camel'
 ): DataObject | DataArray | string | number {
-  if (typeof input === 'object')
-    return transformObjectOrArrayKeys(input, convertedCase);
+  if (typeof input === 'object') return transformObjectOrArrayKeys(input, convertedCase);
 
   return input;
 }
